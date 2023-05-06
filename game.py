@@ -345,7 +345,7 @@ def collideBomb(bx, by, bRad, Bx, By, Brad):
 
 #closetEnemy
 def closestEnemy(listoftargets,turrentx,turrenty):
-    distance = 1000000
+    distance = 700
     targetdistance = 0
     angle = 0
     for target in listoftargets:
@@ -353,15 +353,15 @@ def closestEnemy(listoftargets,turrentx,turrenty):
         if(targetdistance < distance):
             distance = targetdistance
             if((turrentx - target.x) == 0):
-                angle = 0
+                angle = 90
             else:
-                angle = np.arctan((target.y - turrenty)/(target.x - turrentx))*180/np.pi
+                angle = np.arctan((target.y - turrenty)/(target.x - turrentx))*180/np.pi 
                 if angle < 0:
                     angle = angle +180
-    return distance,angle
+    return distance/700,angle/180
 
 def closestBomb(listofbombs,turrentx,turrenty):
-    distance = 1000000
+    distance = 700
     bombdistance = 0
     angle = 0
     for bomb in listofbombs:
@@ -369,12 +369,12 @@ def closestBomb(listofbombs,turrentx,turrenty):
         if(bombdistance < distance):
             distance = bombdistance
             if((turrentx - bomb.x) == 0):
-                angle = 0
+                angle = 90
             else:
-                angle = np.arctan((bomb.y - turrenty)/(bomb.x - turrentx))*180/np.pi
+                angle = np.arctan((bomb.y - turrenty)/(bomb.x - turrentx))*180/np.pi 
                 if angle < 0:
                     angle = angle +180
-    return distance,angle
+    return distance/700,angle/180
 
 # %% LEARN GAME
 def learnGame(controls,numberofcontrolls):
@@ -760,8 +760,8 @@ def geneticAlg(nGen, popSize):
 # print("bombs shot down: ", bombsShotDown)
 # print("targets killed: ", targetsKilled)
 
-sample_controls = geneticAlg(10, 100)
-print(sample_controls)
+sample_controls = geneticAlg(2, 50)
+#print(sample_controls)
 #print(learnGame(sample_controls))
 # pd.DataFrame(sample_controls).to_csv("goodshit.csv")
 # %%
