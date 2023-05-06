@@ -343,6 +343,39 @@ def collideBomb(bx, by, bRad, Bx, By, Brad):
     return collision
 # collideBomb
 
+#closetEnemy
+def closestEnemy(listoftargets,turrentx,turrenty):
+    distance = 700
+    targetdistance = 0
+    angle = 0
+    for target in listoftargets:
+        targetdistance = getDist(turrentx,turrenty,target.x,target.y)
+        if(targetdistance < distance):
+            distance = targetdistance
+            if((turrentx - target.x) == 0):
+                angle = 90
+            else:
+                angle = np.arctan((target.y - turrenty)/(target.x - turrentx))*180/np.pi 
+                if angle < 0:
+                    angle = angle +180
+    return distance/700,angle/180
+
+def closestBomb(listofbombs,turrentx,turrenty):
+    distance = 700
+    bombdistance = 0
+    angle = 0
+    for bomb in listofbombs:
+        bombdistance = getDist(turrentx,turrenty,bomb.x,bomb.y)
+        if(bombdistance < distance):
+            distance = bombdistance
+            if((turrentx - bomb.x) == 0):
+                angle = 90
+            else:
+                angle = np.arctan((bomb.y - turrenty)/(bomb.x - turrentx))*180/np.pi 
+                if angle < 0:
+                    angle = angle +180
+    return distance/700,angle/180
+
 # %% LEARN GAME
 def learnGame(controls,numberofcontrolls):
     
@@ -445,7 +478,11 @@ def learnGame(controls,numberofcontrolls):
             #     ang = t.getGunAngle()
             #     bullets.append(bullet(gx, gy, ang))
             #     bulletsShot = bulletsShot + 1
-            
+            ang = t.getGunAngle()-180
+            closestEnemyDistance, closestEnemyAngle = closestEnemy(turrentx=t.x,turrenty=t.y,listoftargets=targets)
+            closestBombDistance, closestBombAngle = closestBomb(turrentx=t.x,turrenty=t.y,listofbombs=bombs)
+            print(ang,closestEnemyAngle,closestEnemyDistance,closestBombDistance,closestBombAngle)
+
             if (controls[count][0] == 1): 
                 t.moveMe(1)
             if (controls[count][1] == 1): 
