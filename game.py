@@ -714,20 +714,12 @@ def geneticAlg(nGen, popSize):
     display(result_df)
     return top[0]
 #
-# %% MAIN
-# loopcount, turrethitCount, bulletsShot, bulletHits, bombsShotDown, targetsKilled = learnGame()
-# print("loopcount: ", loopcount)
-# print("turret was hit this many times: ", turrethitCount)
-# print("bullets shot: ", bulletsShot)
-# print("bullet hits:", bulletHits)
-# print("bombs shot down: ", bombsShotDown)
-# print("targets killed: ", targetsKilled)
 
+# loopcount, turrethitCount, bulletsShot, bulletHits, bombsShotDown, targetsKilled = learnGame()
 sample_controls = geneticAlg(10, 100)
 print(sample_controls)
-#print(learnGame(sample_controls))
-# pd.DataFrame(sample_controls).to_csv("goodshit.csv")
-# %%
+
 GAME_MODE = True
 print(learnGame(sample_controls,1000))
+
 # %%
