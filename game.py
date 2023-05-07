@@ -987,7 +987,6 @@ def learnGameTrain(controls, numberofcontrolls):
 
 # %% GENETIC ALG
 def score(stats):
-    # goal >> first 3 stats negative correlation, last 3 stats positive correlation
     fin_score =   (stats[0])*.01 + (stats[1])*25 + (stats[2])*-.01+ (stats[3])*-1 + (stats[4])*-2 +(stats[5])*-5 
     return fin_score
 #
@@ -1040,15 +1039,12 @@ def geneticAlg(nGen, popSize):
     for gen in range(nGen):
         # if first generation...
         if gen == 0:
-            # ...create first rndm population >> bool arr, len 5, filled with 0 and 1
-            # pop = np.array([[np.random.randint(2, size = 5) for x in range(1000)] for y in range(popSize)])
-            # pop = np.array([layer.layer(np.zeros((5), dtype = float), [np.random.random_sample(size = 5) for node in range(0,5)]).weights for individ in range(popSize)])
+            # ...create first rndm population
             pop = np.array([[np.random.random_sample(size = 5) for node in range(0,5)] for individ in range(popSize)])
         #
-        # print("original\n",pop)
 
         # neural net
-        inputs = ([np.random.random_sample(size = 5) for input in range(1000)]) # 30 training frames of input
+        inputs = ([np.random.random_sample(size = 5) for input in range(1000)]) # 1000 training frames of input
         # per weights in pop, retrieve 30 frames of output for ranking
         outputs = [[calcWeightedInput(input, individ) for input in inputs] for individ in pop] 
         # per frame, calculate the set (30) of controls using the same weights for each set (30)
@@ -1056,11 +1052,9 @@ def geneticAlg(nGen, popSize):
 
         # get stats for each individual in the population
         stats = np.array([learnGameTrain(control, 1000) for control in controls])
-        # print(stats)
         
         # score each individual based on game stats
         pop_score = np.array([score(stat) for stat in stats])
-        # print("\n\n",pop_score)
 
         pop_score_df = pd.DataFrame(pop_score,columns = ['score'])
         stats_df = pd.DataFrame(data = stats, columns = ['loopcount','hitten','bullest shot','bullet hits', 'bombs shot','targets killed'])
@@ -1068,9 +1062,7 @@ def geneticAlg(nGen, popSize):
         
         # rank population >> sort()
         sort = np.argsort(pop_score) # indx of sorted pop score
-        # print(stats[sort])
         pop = pop[sort] # pop ranked by score sort >> min to max
-        # print("\n\nSorted By Score\n",pop)
 
         # generate new population >>>
         # keep certain top percentage of population
@@ -1097,23 +1089,12 @@ def geneticAlg(nGen, popSize):
     return top[0]
 #
 
-# %% MAIN
+# %% MAIN: USE GA TO FIND WEIGHTS
 # loopcount, turrethitCount, bulletsShot, bulletHits, bombsShotDown, targetsKilled = learnGame()
-best_weights = geneticAlg(20, 100)
+best_weights = geneticAlg(10, 100)
 print("Final Weights\n", best_weights)
 
-# GAME_MODE = True
-# print(learnGame(sample_controls,1000))
-
-# %%
-# inputs = np.random.random_sample(size = 5)
-# layer1 = layer.layer([np.random.random_sample(size = 5) for node in range(0,5)])
-# output = layer1.calcWeightedInput(inputs)
-# final = layer1.activation(output)
-# GAME_MODE = True
-# print(learnGame(layer1))
-
-# breed weights still use learngame as fitness
+# %% MAIN: USE BEST WEIGHTS TO "WIN" GAME
 hiddenLayer = layer.layer(np.zeros(5), best_weights)
 GAME_MODE = True
 learnGame_ForRealsies(hiddenLayer)
