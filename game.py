@@ -686,6 +686,7 @@ def learnGame_ForRealsies(controls):
     # Close the window and quit.
     p.quit()
     
+    print(np.array([loopcount, t.hitCount, bulletsShot, bulletHits, bombsShotDown, targetsKilled]))
     return np.array([loopcount, t.hitCount, bulletsShot, bulletHits, bombsShotDown, targetsKilled])
 # LEARN GAME
 
@@ -1002,7 +1003,7 @@ def breed(parent1, parent2):
     kid = np.concatenate((parent1, parent2))
 
     if random.randint(1, 100) < 10:
-        kid[random.randint(0, len(kid)-1)] = np.random.randint(2, size = 5)
+        kid[random.randint(0, len(kid)-1)] = np.random.random_sample(size = 5)
     #
 
     return kid
@@ -1042,64 +1043,69 @@ def geneticAlg(nGen, popSize):
             # ...create first rndm population >> bool arr, len 5, filled with 0 and 1
             # pop = np.array([[np.random.randint(2, size = 5) for x in range(1000)] for y in range(popSize)])
             # pop = np.array([layer.layer(np.zeros((5), dtype = float), [np.random.random_sample(size = 5) for node in range(0,5)]).weights for individ in range(popSize)])
-            pop = [[np.random.random_sample(size = 5) for node in range(0,5)] for individ in range(popSize)]
+            pop = np.array([[np.random.random_sample(size = 5) for node in range(0,5)] for individ in range(popSize)])
         #
+        # print("original\n",pop)
 
-        # neural net feed
-        inputs = np.random.random_sample(size = 5)
-        outputs = [calcWeightedInput(inputs, individ) for individ in pop] # weights per perceptron, per individual in pop
-        controls = [activation(output) for output in outputs]
+        # neural net
+        inputs = ([np.random.random_sample(size = 5) for input in range(1000)]) # 30 training frames of input
+        # per weights in pop, retrieve 30 frames of output for ranking
+        outputs = [[calcWeightedInput(input, individ) for input in inputs] for individ in pop] 
+        # per frame, calculate the set (30) of controls using the same weights for each set (30)
+        controls = [[activation(control) for control in output] for output in outputs] 
 
         # get stats for each individual in the population
-        stats = np.array([learnGameTrain(control, popSize) for control in controls])
-        print(stats)
+        stats = np.array([learnGameTrain(control, 1000) for control in controls])
+        # print(stats)
         
-    #     # score each individual based on game stats
-    #     pop_score = np.array([score(stat) for stat in stats])
-    #     #print("\n\n",pop_score)
+        # score each individual based on game stats
+        pop_score = np.array([score(stat) for stat in stats])
+        # print("\n\n",pop_score)
 
-    #     pop_score_df = pd.DataFrame(pop_score,columns = ['score'])
-    #     stats_df = pd.DataFrame(data = stats, columns = ['loopcount','hitten','bullest shot','bullet hits',
-    #                                           'bombs shot','targets killed'])
-    #     result_df = pop_score_df.join(stats_df).sort_values(by=['score'])
-    #     # rank population >> sort()
-    #     sort = np.argsort(pop_score) # indx of sorted pop score
-    #     # print(stats[sort])
-    #     pop = pop[sort] # pop ranked by score sort >> min to max
-    #     #print(pop)
+        pop_score_df = pd.DataFrame(pop_score,columns = ['score'])
+        stats_df = pd.DataFrame(data = stats, columns = ['loopcount','hitten','bullest shot','bullet hits', 'bombs shot','targets killed'])
+        result_df = pop_score_df.join(stats_df).sort_values(by=['score'])
+        
+        # rank population >> sort()
+        sort = np.argsort(pop_score) # indx of sorted pop score
+        # print(stats[sort])
+        pop = pop[sort] # pop ranked by score sort >> min to max
+        # print("\n\nSorted By Score\n",pop)
 
-    #     # generate new population >>>
-    #     # keep certain top percentage of population
-    #     top = np.array(pop[:int(len(pop) * 0.3)]) # highest scores from top 20%
-    #     # loop through bottom percentage of population...
-    #     for individidx in range(int(len(pop)*.3),int(len(pop))):
-    #         # choose two parents randomly from top percent
-    #         parent1 = top[random.randint(0, len(top)-1)]
-    #         parent2 = top[random.randint(0, len(top)-1)]
+        # generate new population >>>
+        # keep certain top percentage of population
+        top = np.array(pop[:int(len(pop) * 0.3)]) # highest scores from top 30%
+        # loop through bottom percentage of population...
+        for individidx in range(int(len(pop)*.3),int(len(pop))):
+            # choose two parents randomly from top percent
+            parent1 = top[random.randint(0, len(top)-1)]
+            parent2 = top[random.randint(0, len(top)-1)]
 
-    #         # produce a kid >> breed(parent1, parent2)
-    #         kid = breed(parent1, parent2)
+            # produce a kid >> breed(parent1, parent2)
+            kid = breed(parent1, parent2)
 
-    #         # replace current individual with kid
-    #         pop[individidx] = kid
-    #     #...fin
-    #     print('Gen:',gen)
-    #     result_mean = result_df.mean().to_frame().T
-    #     display(result_mean)
+            # replace current individual with kid
+            pop[individidx] = kid
+        #...fin
+        print('Gen:',gen)
+        result_mean = result_df.mean().to_frame().T
+        display(result_mean)
 
-    # #..fin
-    # print(stats_df)
-    # display(result_df)
-    return # top[0]
+    #..fin
+    print(stats_df)
+    display(result_df)
+    return top[0]
 #
 
 # %% MAIN
 # loopcount, turrethitCount, bulletsShot, bulletHits, bombsShotDown, targetsKilled = learnGame()
-# sample_controls = geneticAlg(10, 100)
-# print(sample_controls)
+best_weights = geneticAlg(20, 100)
+print("Final Weights\n", best_weights)
+
 # GAME_MODE = True
 # print(learnGame(sample_controls,1000))
 
+# %%
 # inputs = np.random.random_sample(size = 5)
 # layer1 = layer.layer([np.random.random_sample(size = 5) for node in range(0,5)])
 # output = layer1.calcWeightedInput(inputs)
@@ -1108,5 +1114,6 @@ def geneticAlg(nGen, popSize):
 # print(learnGame(layer1))
 
 # breed weights still use learngame as fitness
-
-geneticAlg(10, 100)
+hiddenLayer = layer.layer(np.zeros(5), best_weights)
+GAME_MODE = True
+learnGame_ForRealsies(hiddenLayer)
